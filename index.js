@@ -5,7 +5,7 @@ const assert = require('assert');
 module.exports = exports = genIdFactory;
 
 /**
- * genIdFactory - created the Id-generating function
+ * genIdFactory - creates the Id-generating function
  *
  * @param  {Number} [options.maxSequence=1e10]                Expected maximal sequence of Id's
  * @param  {Number} [options.maxStep=1e3]                     Maximal step from previous Id
@@ -39,24 +39,24 @@ function genIdFactory(options) {
 
   g = options.groupWidth;
   const groupWidth = max(
-    typeof (g) !== 'number' ? Math.ceil( ( width + nonceWidth ) / 2 ) : g,
+    (typeof g !== 'number') ? Math.ceil( ( width + nonceWidth ) / 2 ) : g,
     4
-  )
+  );
   const groupSeparator = (
     typeof(s = options.groupSeparator) !== 'string' ? '-' : s
   );
 
   const groupRe = new RegExp(
-    `([^${groupSeparator}]+)` +
-    `([^${groupSeparator}]{${groupWidth}}(${groupSeparator}|$))`
+    `([^${ groupSeparator }]+)` +
+    `([^${ groupSeparator }]{${ groupWidth }}(${ groupSeparator }|$))`
   );
-  const neGroup = new RegExp(`[^${groupSeparator}]{${groupWidth+1}}`);
+  const neGroup = new RegExp(`[^${ groupSeparator }]{${ groupWidth + 1 }}`);
   const groupFunc = ( groupSeparator && groupWidth?
-    group.bind(null, neGroup, groupRe, `$1${groupSeparator}$2`) :
+    group.bind(null, neGroup, groupRe, `$1${ groupSeparator }$2`) :
     s => s
   );
 
-  const hashPattern = new RegExp(`^${hashControlValue}.*$`);
+  const hashPattern = new RegExp(`^${ hashControlValue }.*$`);
 
   const genFunc = genId.bind(null,
     step.bind(null, maxStep),
@@ -67,6 +67,14 @@ function genIdFactory(options) {
     hashPattern.test.bind(hashPattern)
   );
 
+  // const genFunc = genIdLuhn.bind(null,
+  //   step.bind(null, maxStep),
+  //   str.bind(null, digits, radix, width),
+  //   str.bind(null, digits, radix, nonceWidth),
+  //   groupFunc,
+  //   luhn.bind(null, digits, radix)
+  // );
+
   genFunc.digits = digits;
   genFunc.groupWidth = groupWidth;
   genFunc.hashControlValue = hashControlValue;
@@ -76,6 +84,7 @@ function genIdFactory(options) {
   genFunc.hash = hash;
   genFunc.hashName = hash.name;
   genFunc.getSequenceById = getSequenceById.bind( null, digits, nonceWidth );
+  genFunc.group = groupFunc;
 
   genFunc.idPattern = new RegExp(
     `^[${allowedDigits}]{1,${groupWidth}}` +
@@ -88,6 +97,12 @@ function genIdFactory(options) {
     hashPattern.test.bind(hashPattern)
   );
 
+  // genFunc.isId = isId.bind(null,
+  //   genFunc.idPattern.test.bind(genFunc.idPattern),
+  //   (x) => x,
+  //   check.bind(null, digits, radix)
+  // );
+
   return genFunc;
 }
 
@@ -99,6 +114,14 @@ function genId(step, sStr, nStr, group, hash, testHash, sequence) {
   } while (!testHash( hash(id) ));
 
   return [ sequence, id ];
+}
+
+function genIdLuhn(step, sStr, nStr, group, luhn, sequence) {
+  const base = sStr( sequence = parseInt(sequence, 10) + step() );
+  let id = nStr(sequence),
+      nonce = luhn(id).toString();
+
+  return [ sequence, group(nonce + id) ];
 }
 
 function randomize(s) {
@@ -158,4 +181,31 @@ function sortStr(s) {
 
 function max(a, b) {
   return a > b ? a : b;
+}
+
+function luhn(digits, r, num) {
+
+  let crc = num.split('').reverse().reduce( ( crc, d, i ) => {
+    let c = digits.indexOf(d);
+    if (i % 2 === 1) c = ( c = c * 2 ) > (r - 1) ? c - r + 1 : c;
+    return crc + c;
+  }, 0);
+  crc = crc % r;
+  crc = crc === 0 ? crc : r - crc;
+
+  return crc;
+
+}
+
+function check(digits, r, num) {
+  let crc = num
+    .replace(new RegExp(`[^${ digits }]`, 'g'), '')
+    .split('')
+    .reverse()
+    .reduce( ( crc, d, i ) => {
+      let c = digits.indexOf(d);
+        if (i % 2 === 1) c = ( c = c * 2 ) > ( r - 1 ) ? c - r + 1 : c;
+        return crc + c;
+    }, 0);
+  return !( crc % r);
 }

@@ -1,0 +1,10 @@
+Starting range [0 nln ...]:
+1 code (50XH5P-2T08HX5) checked. Verified: 29640. isIdOk: 7. Prob: 0.02362%
+2 code (59605P-2T087MP) checked. Verified: 59280. isIdOk: 18. Prob: 0.03036%
+Starting range [0.1 nln ...]:
+3 code (50A45P-H5TA13E) checked. Verified: 88920. isIdOk: 21. Prob: 0.02362%
+4 code (51355P-H5TA1T6) checked. Verified: 118560. isIdOk: 27. Prob: 0.02277%
+Starting range [1 nln ...]:
+5 code (5XA65P-384E52M) checked. Verified: 148200. isIdOk: 32. Prob: 0.02159%
+6 code (5E1E5P-384EP0C) checked. Verified: 177840. isIdOk: 40. Prob: 0.02249%
+Starting range [10 nln ...]:

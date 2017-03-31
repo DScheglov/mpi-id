@@ -9,9 +9,11 @@ const digits = '0123456789ABCEHKMPTX'; // 0123456789ABCFEHJKLMPRTWYXZ
 const maxStep = digits.length * digits.length + 19;
 
 const MPI = init({
-  maxSequence: 150e6 * maxStep / 2,
-  maxStep: maxStep,
-  hashControlValue: '00'
+  //digits: digits.substr(0, 10),
+  //restore: true,
+  maxSequence: 1e9 * maxStep,
+  maxStep: 1,
+  hashControlValue: '000'
 })
 
 console.dir(MPI);
@@ -31,4 +33,4 @@ let sequence;
 
 const end = Date.now();
 
-console.error(`${ (end - start) / 1000} sec`)
+console.error(`${ (end - start) / 1000 } sec`)
